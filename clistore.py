@@ -20,10 +20,14 @@ LOCALES = {
         "press_enter": "Press Enter to open the search bar..." if not IS_FR else "Appuyez sur Entrée pour ouvrir la barre de recherche...",
         "forced_exit": "\n\nForced closure of CLI-Store." if not IS_FR else "\n\nFermeture forcé du Cli-Store.",
         "step1_ok": "\n[OK] Step 1 validated. Ready for the next block." if not IS_FR else "\n[OK] Étape 1 validée. Prêt pour la suite.",
+        "search_prompt": "[CLI-Store] Enter your search (or 'Q' to quit) :" if not IS_FR else "[CLI-Store] Entrez votre recherche (ou 'Q' pour quitter) :",
+        "search_exit": "Leaving CLI-Store. See you!" if not IS_FR else "Sortie de CLI-Store. À la prochaine !",
+        "no_pm": "[ERROR] No compatible package manager found (APT, DNF, PACMAN).Exiting." if not IS_FR else "[ERREUR] Aucun gestionnaire de paquetscompatible trové (APT, DNF, PACMAN). Fermeture.",
+        "searching": "Searching for packages..." if not IS_FR else "Recherche des paquets en cours..."
 }
 BANNER =f"""
 ======================================================
-               CLI-STORE v0.0.1-bêta
+               CLI-STORE v0.1-bêta
 {LOCALES['banner']}
 ======================================================
 """
@@ -49,17 +53,46 @@ def check_root():
 # BOUCLE PRINCIPALE
 # ==============================================================================
 
+def detect_package_manager():
+    """Détecte le gestionnaire de paquets disponible sur le système"""
+    if os.path.exists("/usr/bin/dnf"):
+        return "dnf"
+    elif os.path.exists("/usr/bin/apt") or os.path.exists("usr/bin/apt-get"):
+        return "apt"
+    elif os.path.exists("usr/bin/pacman"):
+        return "pacman"
+    return None
+
 def main():
     # Écran au démarrage
     os.system("clear")
 
-    # Étape 1 : On sécurise l'éccès en demandant le mot de passe root
+    # On sécurise l'accès en demandant le mot de passe root
     check_root()
 
     # Petite pause pour valider visuellement la connexion
     input(f"\n{LOCALES['press_enter']}")
 
-    print(LOCALES["step1_ok"])
+    # Boucle de la barre de recherche
+    while True:
+        os.system ("clear")
+        print(BANNER)
+
+        # On demande la saisie
+        query = input(LOCALES["search_prompt"]).strip()
+
+        # Si l'utilisateur veut quitter
+        if query.upper() == "Q":
+            print (f"\n{LOCALES['search_exit']}\n")
+            break # On sort de la boucle et on quitte le script
+
+        # Si l'utilisateur a appuyé sur Entrée sans rien écrire
+        if not query:
+            continue
+
+        # --- BLOC TEST ---
+        print(f"\n[TEST] Tu as recherché le mot : {query}")
+        input ("\nAppuie sur Entrée pour refaire un recherche...")
 
 if __name__ == "__main__":
     try:
